@@ -17,9 +17,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://cloud-project-3d6.pages.dev", # Placeholder: replace with your actual Cloudflare Pages URL
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,

@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+.venv/
+
+# ML Data & Models
+storage/uploads/
+storage/cleaned/
+storage/models/
+*.pkl
+*.csv
+*.xlsx
+
+# Node / Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.DS_Store

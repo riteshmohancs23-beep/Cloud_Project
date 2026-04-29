@@ -12,3 +12,5 @@ scikit-learn
 joblib
 openpyxl
 pyarrow
+numpy
+python-dotenv

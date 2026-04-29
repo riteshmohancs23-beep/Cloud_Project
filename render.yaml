@@ -18,11 +18,9 @@ services:
         value: "60"
 
   # Frontend Static Site
-  - type: static
+  - type: web
     name: dataflow-frontend
     env: static
-    plan: free
-    region: ohio
     buildCommand: "cd frontend && npm install && npm run build"
     staticPublishPath: "frontend/dist"
     envVars:
@@ -31,6 +29,10 @@ services:
           name: dataflow-backend
           type: web
           property: host
+    routes:
+      - type: rewrite
+        source: "/*"
+        destination: "/index.html"
 
 databases:
   - name: dataflow-db
