@@ -1,3 +1,8 @@
+# Monkeypatch bcrypt for passlib compatibility
+import bcrypt
+if not hasattr(bcrypt, "__about__"):
+    bcrypt.__about__ = type("about", (object,), {"__version__": "4.0.1"})
+
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
@@ -12,8 +17,10 @@ def profile_dataset(db: Session, dataset_id: UUID, current_user: User) -> Profil
     dataset = db.query(Dataset).filter(Dataset.id == dataset_id, Dataset.owner_id == current_user.id).first()
     if not dataset:
         raise HTTPException(404, "Dataset not found")
-    if dataset.status != DataSetStatus.UPLOADED:
-        raise HTTPException(400, f"Dataset must be UPLOADED to profile. Current: {dataset.status}")
+    
+    # Allow re-profiling if already profiled or uploaded
+    if dataset.status not in [DataSetStatus.UPLOADED, DataSetStatus.PROFILED]:
+        raise HTTPException(400, f"Dataset must be UPLOADED or PROFILED. Current: {dataset.status}")
     df = load_dataframe(dataset.file_path)
     result = run_profiling(df)
     try:

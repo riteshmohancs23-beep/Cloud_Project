@@ -16,8 +16,8 @@ def train_model(db: Session, dataset_id: UUID, req: MLTrainRequest, current_user
     dataset = db.query(Dataset).filter(Dataset.id == dataset_id, Dataset.owner_id == current_user.id).first()
     if not dataset:
         raise HTTPException(404, "Dataset not found")
-    if dataset.status != DataSetStatus.ANALYZED:
-        raise HTTPException(400, "Dataset must be ANALYZED before training")
+    if dataset.status not in [DataSetStatus.ANALYZED, DataSetStatus.TRAINED]:
+        raise HTTPException(400, "Dataset must be at least ANALYZED before training")
     cleaning = db.query(CleaningResult).filter(CleaningResult.dataset_id == dataset_id).first()
     df = load_dataframe(cleaning.cleaned_file_path)
     result = run_ml(

@@ -1,4 +1,5 @@
 from uuid import UUID
+from pathlib import Path
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, UploadFile
 from app.models.dataset import Dataset, DataSetStatus, FileType
@@ -9,9 +10,11 @@ from app.utils.file_handler import save_upload_file
 ALLOWED_EXTENSIONS = {"csv", "xlsx", "parquet"}
 
 def upload_dataset(db: Session, file: UploadFile, current_user: User) -> DatasetResponse:
-    file_path, ext = save_upload_file(file)
+    ext = Path(file.filename).suffix.lstrip(".").lower()
     if ext not in ALLOWED_EXTENSIONS:
-        raise HTTPException(422, f"Unsupported file type: {ext}")
+        raise HTTPException(422, f"Unsupported file type: {ext}. Allowed: {ALLOWED_EXTENSIONS}")
+    
+    file_path, _ = save_upload_file(file)
     dataset = Dataset(
         owner_id=current_user.id,
         filename=file.filename,
@@ -19,10 +22,15 @@ def upload_dataset(db: Session, file: UploadFile, current_user: User) -> Dataset
         file_type=FileType(ext),
         status=DataSetStatus.UPLOADED,
     )
-    db.add(dataset)
-    db.commit()
-    db.refresh(dataset)
-    return DatasetResponse.model_validate(dataset)
+    try:
+        db.add(dataset)
+        db.commit()
+        db.refresh(dataset)
+        return DatasetResponse.model_validate(dataset)
+    except Exception as e:
+        db.rollback()
+        print(f"ERROR: Failed to save dataset record: {e}")
+        raise HTTPException(500, f"Database error: {e}")
 
 def list_datasets(db: Session, current_user: User) -> DatasetListResponse:
     datasets = db.query(Dataset).filter(Dataset.owner_id == current_user.id).all()

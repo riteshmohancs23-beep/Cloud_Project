@@ -5,10 +5,15 @@ from fastapi import UploadFile
 from app.config import settings
 
 def save_upload_file(file: UploadFile) -> tuple[str, str]:
-    ext = Path(file.filename).suffix.lstrip(".")
+    ext = Path(file.filename).suffix.lstrip(".").lower()
     safe_name = f"{uuid.uuid4()}_{file.filename}"
-    dest = Path(settings.UPLOAD_DIR) / safe_name
-    dest.write_bytes(file.file.read())
+    upload_dir = Path(settings.UPLOAD_DIR)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    
+    dest = upload_dir / safe_name
+    content = file.file.read()
+    print(f"DEBUG: Saving upload to {dest} (Size: {len(content)} bytes)")
+    dest.write_bytes(content)
     return str(dest), ext
 
 def load_dataframe(path: str) -> pd.DataFrame:

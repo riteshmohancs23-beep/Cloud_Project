@@ -1,3 +1,8 @@
+# Monkeypatch bcrypt for passlib compatibility
+import bcrypt
+if not hasattr(bcrypt, "__about__"):
+    bcrypt.__about__ = type("about", (object,), {"__version__": "4.0.1"})
+
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from passlib.context import CryptContext

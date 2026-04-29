@@ -13,8 +13,8 @@ def analyze_dataset(db: Session, dataset_id: UUID, current_user: User) -> Analyt
     dataset = db.query(Dataset).filter(Dataset.id == dataset_id, Dataset.owner_id == current_user.id).first()
     if not dataset:
         raise HTTPException(404, "Dataset not found")
-    if dataset.status != DataSetStatus.CLEANED:
-        raise HTTPException(400, "Dataset must be CLEANED before analyzing")
+    if dataset.status not in [DataSetStatus.CLEANED, DataSetStatus.ANALYZED, DataSetStatus.TRAINED]:
+        raise HTTPException(400, "Dataset must be at least CLEANED before analyzing")
     cleaning = db.query(CleaningResult).filter(CleaningResult.dataset_id == dataset_id).first()
     df = load_dataframe(cleaning.cleaned_file_path)
     result = run_analytics(df)

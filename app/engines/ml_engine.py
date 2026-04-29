@@ -6,6 +6,10 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, mean_absolute_error, mean_squared_error, r2_score)
 from fastapi import HTTPException
+import warnings
+
+# Silence common sklearn warnings about target types
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
 
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler

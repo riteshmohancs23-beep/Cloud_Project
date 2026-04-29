@@ -11,8 +11,9 @@ def clean_dataset(db: Session, dataset_id: UUID, current_user: User) -> dict:
     dataset = db.query(Dataset).filter(Dataset.id == dataset_id, Dataset.owner_id == current_user.id).first()
     if not dataset:
         raise HTTPException(404, "Dataset not found")
-    if dataset.status != DataSetStatus.PROFILED:
-        raise HTTPException(400, f"Dataset must be PROFILED before cleaning. Current: {dataset.status}")
+    # Allow cleaning if profiled, cleaned, analyzed, or trained
+    if dataset.status not in [DataSetStatus.PROFILED, DataSetStatus.CLEANED, DataSetStatus.ANALYZED, DataSetStatus.TRAINED]:
+        raise HTTPException(400, f"Dataset must be at least PROFILED before cleaning. Current: {dataset.status}")
     df = load_dataframe(dataset.file_path)
     result = run_cleaning(df)
     cleaned_path = save_cleaned_df(result["cleaned_df"], dataset.file_path)

@@ -20,7 +20,8 @@ app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 origins = [
     "http://localhost:5173",
     "http://localhost:5174",
-    "https://cloud-project-3d6.pages.dev", # Placeholder: replace with your actual Cloudflare Pages URL
+    "http://localhost:8501",
+    "https://cloud-project-3d6.pages.dev", 
 ]
 
 app.add_middleware(
