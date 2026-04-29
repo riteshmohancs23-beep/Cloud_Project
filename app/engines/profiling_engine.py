@@ -25,7 +25,8 @@ def run_profiling(df: pd.DataFrame) -> dict:
             })
         column_details[col] = details
 
-    return {
+    from app.utils.json_helper import sanitize_json_data
+    res = {
         "row_count": len(df),
         "col_count": len(df.columns),
         "missing_cells": missing,
@@ -37,3 +38,4 @@ def run_profiling(df: pd.DataFrame) -> dict:
         "datetime_cols": len(datetime_cols.columns),
         "column_details": column_details,
     }
+    return sanitize_json_data(res)
