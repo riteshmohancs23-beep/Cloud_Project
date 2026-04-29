@@ -1,0 +1,38 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: dataflow-backend
+    env: docker
+    plan: free
+    region: ohio
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dataflow-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+
+  # Frontend Static Site
+  - type: static
+    name: dataflow-frontend
+    env: static
+    plan: free
+    region: ohio
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: "frontend/dist"
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: dataflow-backend
+          type: web
+          property: host
+
+databases:
+  - name: dataflow-db
+    plan: free
+    region: ohio
